@@ -8,24 +8,30 @@ export async function BrandsSection() {
     loadEffectiveBrands(),
   ]);
 
+  if (brands.length === 0) return null;
+
+  // Duplicate the list so the marquee loops seamlessly.
+  const loop = [...brands, ...brands];
+
   return (
-    <section className="section brands-section">
+    <section className="section tight">
       <div className="container">
-        <div className="section-header">
-          <h2 className="section-title">Brands We Offer</h2>
-          <p className="section-subtitle">
-            Click any brand to see all products from that manufacturer
-          </p>
-        </div>
-        <div className="brands-grid">
-          {brands.map((brand) => {
+        <p className="text-center muted" style={{ fontSize: "0.78rem", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 26 }}>
+          Authorised partner for leading brands
+        </p>
+      </div>
+      <div className="marquee">
+        <div className="marquee-track">
+          {loop.map((brand, i) => {
             const logo = resolveBrandLogo(brand.slug, dbLogos);
             return (
               <Link
-                key={brand.slug}
+                key={`${brand.slug}-${i}`}
                 href={`/products?brand=${encodeURIComponent(brand.slug)}`}
                 className="brand-card"
+                style={{ width: 168, flex: "0 0 auto" }}
                 title={`See all ${brand.name} products`}
+                aria-hidden={i >= brands.length}
               >
                 {logo ? (
                   <img src={logo} alt={`${brand.name} logo`} />

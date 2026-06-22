@@ -1,9 +1,29 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { siteConfig } from "@/lib/config";
 import { productCategories, getCategoryUrl } from "@/lib/data/products";
+
+const SOLUTIONS = [
+  { slug: "biometric", name: "Biometric Devices", icon: "fa-fingerprint" },
+  { slug: "cctv", name: "CCTV Surveillance", icon: "fa-video" },
+  { slug: "gate-automation", name: "Gate Automation", icon: "fa-road-barrier" },
+  { slug: "security", name: "Security Solutions", icon: "fa-shield-halved" },
+  { slug: "web-design", name: "Website Designing", icon: "fa-display" },
+  { slug: "hosting", name: "Hosting", icon: "fa-server" },
+  { slug: "app-development", name: "App Development", icon: "fa-mobile-screen" },
+  { slug: "attendance-payroll", name: "Attendance & Payroll", icon: "fa-calendar-check" },
+];
+
+const SOCIAL: Array<[keyof typeof siteConfig.social, string, string]> = [
+  ["facebook", "fa-facebook-f", "Facebook"],
+  ["instagram", "fa-instagram", "Instagram"],
+  ["linkedin", "fa-linkedin-in", "LinkedIn"],
+  ["youtube", "fa-youtube", "YouTube"],
+  ["x", "fa-x-twitter", "X (Twitter)"],
+];
 
 function isActive(pathname: string, prefix: string): boolean {
   if (prefix === "/") return pathname === "/";
@@ -12,137 +32,129 @@ function isActive(pathname: string, prefix: string): boolean {
 
 export function Header() {
   const pathname = usePathname() ?? "/";
+  const [mobileOpen, setMobileOpen] = useState(false);
   if (pathname.startsWith("/admin")) return null;
 
   const categoryEntries = Object.entries(productCategories);
-  const columnsCount = 4;
-  const itemsPerColumn = Math.ceil(categoryEntries.length / columnsCount);
-  const columns: typeof categoryEntries[] = [];
-  for (let i = 0; i < categoryEntries.length; i += itemsPerColumn) {
-    columns.push(categoryEntries.slice(i, i + itemsPerColumn));
-  }
 
   return (
     <>
-      {/* Top Bar */}
-      <div className="top-bar">
-        <div className="container">
-          <div className="top-bar-content">
-            <div className="top-bar-left">
-              <span>
-                <i className="fas fa-envelope" /> {siteConfig.companyEmail}
-              </span>
-              <span>
-                <i className="fas fa-phone" /> {siteConfig.companyPhone}
-              </span>
-            </div>
-            <div className="top-bar-right">
-              <a href={siteConfig.social.facebook} target="_blank" rel="noopener" title="Facebook">
-                <i className="fab fa-facebook-f" />
+      {/* Top bar */}
+      <div className="topbar">
+        <div className="container topbar-inner">
+          <div className="topbar-left">
+            <a href={`mailto:${siteConfig.companyEmail}`}>
+              <i className="fas fa-envelope" /> {siteConfig.companyEmail}
+            </a>
+            <a className="addr" href={`tel:${siteConfig.companyPhone.replace(/\s/g, "")}`}>
+              <i className="fas fa-phone" /> {siteConfig.companyPhone}
+            </a>
+          </div>
+          <div className="topbar-right">
+            {SOCIAL.map(([key, icon, title]) => (
+              <a key={key} href={siteConfig.social[key]} target="_blank" rel="noopener" title={title}>
+                <i className={`fab ${icon}`} />
               </a>
-              <a href={siteConfig.social.instagram} target="_blank" rel="noopener" title="Instagram">
-                <i className="fab fa-instagram" />
-              </a>
-              <a href={siteConfig.social.linkedin} target="_blank" rel="noopener" title="LinkedIn">
-                <i className="fab fa-linkedin-in" />
-              </a>
-              <a href={siteConfig.social.youtube} target="_blank" rel="noopener" title="YouTube">
-                <i className="fab fa-youtube" />
-              </a>
-              <a href={siteConfig.social.x} target="_blank" rel="noopener" title="X (Twitter)">
-                <i className="fab fa-x-twitter" />
-              </a>
-            </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Main Header */}
-      <header className="main-header">
-        <div className="container">
-          <div className="header-content">
-            <Link href="/" className="logo">
-              <img
-                src="/images/logo.png"
-                alt={siteConfig.companyName}
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).style.display = "none";
-                  const next = e.currentTarget.nextElementSibling as HTMLElement | null;
-                  if (next) next.style.display = "block";
-                }}
-              />
-              <span className="logo-text" style={{ display: "none" }}>
-                {siteConfig.companyName}
-              </span>
-            </Link>
+      {/* Main header */}
+      <header className="site-header">
+        <div className="container nav-inner">
+          <Link href="/" className="brand" aria-label="Axiozen home">
+            <span className="brand-mark"><i className="fas fa-shield-halved" /></span>
+            <span><span className="b">AXIO</span><span className="z">ZEN</span></span>
+          </Link>
 
-            {/* Search Bar */}
-            <div className="search-bar">
-              <form action="/search" method="GET" className="search-form">
-                <input
-                  type="text"
-                  name="q"
-                  placeholder="Search products..."
-                  className="search-input"
-                  autoComplete="off"
-                  id="searchInput"
-                />
-                <button type="submit" className="search-btn">
-                  <i className="fas fa-search" />
-                </button>
-              </form>
-              <div className="search-results" id="searchResults" />
+          {/* Live search */}
+          <div className="search-bar">
+            <form action="/search" method="GET" className="search-form">
+              <input
+                type="text" name="q" id="searchInput"
+                placeholder="Search products…" className="search-input" autoComplete="off"
+              />
+              <button type="submit" className="search-btn" aria-label="Search">
+                <i className="fas fa-search" />
+              </button>
+            </form>
+            <div className="search-results" id="searchResults" />
+          </div>
+
+          {/* Desktop nav */}
+          <nav className="nav-menu">
+            <div className={`nav-item has-dropdown ${isActive(pathname, "/solutions") ? "active" : ""}`}>
+              <Link href="/solutions" className="nav-link">
+                Solutions <i className="fas fa-chevron-down caret" />
+              </Link>
+              <div className="dropdown">
+                {SOLUTIONS.map((s) => (
+                  <Link key={s.slug} href={`/solutions#${s.slug}`} className="dropdown-item">
+                    <i className={`fas ${s.icon}`} /> {s.name}
+                  </Link>
+                ))}
+              </div>
             </div>
 
-            {/* Mobile Menu Toggle */}
-            <button className="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
-              <i className="fas fa-bars" />
-            </button>
-
-            {/* Navigation */}
-            <nav className="main-nav" id="mainNav">
-              <ul className="nav-list">
-                <li className={`nav-item ${isActive(pathname, "/") ? "active" : ""}`}>
-                  <Link href="/">Home</Link>
-                </li>
-                <li className={`nav-item has-dropdown ${isActive(pathname, "/products") ? "active" : ""}`}>
-                  <Link href="/products">
-                    Products <i className="fas fa-chevron-down" />
+            <div className={`nav-item has-dropdown ${isActive(pathname, "/products") ? "active" : ""}`}>
+              <Link href="/products" className="nav-link">
+                Products <i className="fas fa-chevron-down caret" />
+              </Link>
+              <div className="dropdown mega">
+                {categoryEntries.map(([slug, category]) => (
+                  <Link key={slug} href={getCategoryUrl(slug)} className="dropdown-item">
+                    <i className={`fas ${category.icon}`} /> {category.name}
                   </Link>
-                  <div className="mega-dropdown">
-                    <div className="mega-dropdown-content">
-                      {columns.map((col, ci) => (
-                        <div className="mega-column" key={ci}>
-                          {col.map(([slug, category]) => (
-                            <Link
-                              key={slug}
-                              href={getCategoryUrl(slug)}
-                              className="mega-item"
-                            >
-                              <i className={`fas ${category.icon}`} />
-                              {category.name}
-                            </Link>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </li>
-                <li className={`nav-item ${isActive(pathname, "/gallery") ? "active" : ""}`}>
-                  <Link href="/gallery">Gallery</Link>
-                </li>
-                <li className={`nav-item ${isActive(pathname, "/reviews") ? "active" : ""}`}>
-                  <Link href="/reviews">Reviews</Link>
-                </li>
-                <li className={`nav-item ${isActive(pathname, "/downloads") ? "active" : ""}`}>
-                  <Link href="/downloads">Downloads</Link>
-                </li>
-                <li className={`nav-item ${isActive(pathname, "/contact") ? "active" : ""}`}>
-                  <Link href="/contact">Contact Us</Link>
-                </li>
-              </ul>
-            </nav>
+                ))}
+              </div>
+            </div>
+
+            <div className={`nav-item ${isActive(pathname, "/gallery") ? "active" : ""}`}>
+              <Link href="/gallery" className="nav-link">Work</Link>
+            </div>
+
+            <div className={`nav-item has-dropdown ${isActive(pathname, "/downloads") || isActive(pathname, "/reviews") ? "active" : ""}`}>
+              <span className="nav-link">Resources <i className="fas fa-chevron-down caret" /></span>
+              <div className="dropdown">
+                <Link href="/downloads" className="dropdown-item"><i className="fas fa-download" /> Downloads</Link>
+                <Link href="/reviews" className="dropdown-item"><i className="fas fa-star" /> Reviews</Link>
+              </div>
+            </div>
+
+            <div className={`nav-item ${isActive(pathname, "/contact") ? "active" : ""}`}>
+              <Link href="/contact" className="nav-link">Contact</Link>
+            </div>
+          </nav>
+
+          <div className="nav-actions">
+            <Link href="/contact" className="btn btn-primary">
+              <span className="label">Get a Quote</span>
+              <i className="fas fa-arrow-right" style={{ fontSize: "0.8em" }} />
+            </Link>
+            <button
+              className="icon-btn menu-toggle"
+              aria-label="Toggle menu"
+              onClick={() => setMobileOpen((o) => !o)}
+            >
+              <i className={`fas ${mobileOpen ? "fa-xmark" : "fa-bars"}`} />
+            </button>
           </div>
+        </div>
+
+        {/* Mobile nav */}
+        <div className={`mobile-nav ${mobileOpen ? "open" : ""}`} onClick={() => setMobileOpen(false)}>
+          <form action="/search" method="GET" className="search-form" style={{ marginBottom: 8 }}>
+            <input type="text" name="q" placeholder="Search products…" className="search-input" autoComplete="off" />
+            <button type="submit" className="search-btn" aria-label="Search"><i className="fas fa-search" /></button>
+          </form>
+          <Link href="/solutions">Solutions</Link>
+          <Link href="/products">Products</Link>
+          <Link href="/gallery">Work</Link>
+          <div className="group-label">Resources</div>
+          <Link href="/downloads">Downloads</Link>
+          <Link href="/reviews">Reviews</Link>
+          <Link href="/contact">Contact</Link>
         </div>
       </header>
     </>
