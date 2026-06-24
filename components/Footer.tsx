@@ -13,11 +13,11 @@ const SOLUTIONS = [
 ];
 
 const COMPANY = [
+  ["About Us", "/about"],
   ["Products", "/products"],
   ["Work", "/gallery"],
   ["Reviews", "/reviews"],
   ["Downloads", "/downloads"],
-  ["Contact", "/contact"],
 ];
 
 const SOCIAL: Array<[keyof typeof siteConfig.social, string, string]> = [
@@ -42,8 +42,7 @@ export function Footer() {
           {/* Brand */}
           <div>
             <Link href="/" className="brand" aria-label="Axiozen home">
-              <span className="brand-mark"><i className="fas fa-shield-halved" /></span>
-              <span><span className="b">AXIO</span><span className="z">ZEN</span></span>
+              <img src="/images/logo.png" alt="Axiozen" className="brand-logo" />
             </Link>
             <p className="footer-about">
               Solutions that secure, automate &amp; empower. End-to-end security &amp;
@@ -85,6 +84,7 @@ export function Footer() {
               <li><i className="fas fa-location-dot" /><span>{siteConfig.companyAddress}</span></li>
               <li><i className="fas fa-phone" /><a href={telHref}>{siteConfig.companyPhone}</a></li>
               <li><i className="fas fa-envelope" /><a href={`mailto:${siteConfig.companyEmail}`}>{siteConfig.companyEmail}</a></li>
+              <li><i className="fas fa-receipt" /><span>GSTIN: {siteConfig.companyGstin}</span></li>
               <li><i className="fas fa-map" /><a href={siteConfig.googleMapsLink} target="_blank" rel="noopener">View on Google Maps</a></li>
             </ul>
           </div>

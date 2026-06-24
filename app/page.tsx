@@ -1,13 +1,11 @@
 import Link from "next/link";
 import { BrandsSection } from "@/components/BrandsSection";
-import { CustomersCarousel } from "@/components/CustomersCarousel";
 import { siteConfig } from "@/lib/config";
 import {
   productCategories,
   getCategoryUrl,
   getProductUrl,
 } from "@/lib/data/products";
-import { getCustomerLogos } from "@/lib/data/images";
 import { loadProductMeta, sortByMeta, bestProductImage, displayName } from "@/lib/data/product-meta";
 import { loadApprovedReviews } from "@/lib/data/reviews-server";
 import { getGoogleReviews, getWriteReviewUrl } from "@/lib/data/google-reviews";
@@ -36,7 +34,6 @@ export default async function HomePage() {
   const meta = await loadProductMeta();
   const imagesMap = await loadProductImagesMap();
   const effective = await loadEffectiveCategories(meta);
-  const customerLogos = getCustomerLogos();
   const reviews = await loadApprovedReviews(6);
   const { reviews: googleReviews, isReal: googleIsReal } = await getGoogleReviews();
   const writeReviewUrl = getWriteReviewUrl();
@@ -115,6 +112,48 @@ export default async function HomePage() {
 
       {/* ===================== BRANDS MARQUEE ===================== */}
       <BrandsSection />
+
+      {/* ===================== ABOUT ===================== */}
+      <section className="section" id="about">
+        <div className="container">
+          <div className="sol-row" style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 40, alignItems: "center" }}>
+            <div>
+              <span className="eyebrow">About us</span>
+              <h2 className="section-title" style={{ marginTop: 6 }}>Mysuru-built security &amp; automation, delivered end-to-end</h2>
+              <p className="section-subtitle" style={{ margin: "14px 0 0" }}>
+                Axiozen is a Mysuru-based technology company helping businesses secure their
+                premises and automate their operations. From biometric access and CCTV to gate
+                automation, websites and workforce software, we survey, supply, install and
+                support every system — so you deal with one accountable partner, not many.
+              </p>
+              <div className="hero-cta" style={{ marginTop: 26 }}>
+                <Link href="/about" className="btn btn-primary">More about us <i className="fas fa-arrow-right" style={{ fontSize: "0.8em" }} /></Link>
+                <Link href="/solutions" className="btn btn-ghost">Our solutions</Link>
+              </div>
+            </div>
+            <div className="card-panel">
+              <div style={{ display: "grid", gap: 16 }}>
+                <div style={{ display: "flex", gap: 12 }}>
+                  <span className="info-icon"><i className="fas fa-location-dot" /></span>
+                  <div><div style={{ fontWeight: 700, fontSize: "0.92rem" }}>Based in Mysuru</div><div className="muted" style={{ fontSize: "0.84rem" }}>{siteConfig.companyAddress}</div></div>
+                </div>
+                <div style={{ display: "flex", gap: 12 }}>
+                  <span className="info-icon"><i className="fas fa-receipt" /></span>
+                  <div><div style={{ fontWeight: 700, fontSize: "0.92rem" }}>GST registered</div><div className="muted" style={{ fontSize: "0.84rem" }}>GSTIN {siteConfig.companyGstin}</div></div>
+                </div>
+                <div style={{ display: "flex", gap: 12 }}>
+                  <span className="info-icon"><i className="fas fa-headset" /></span>
+                  <div><div style={{ fontWeight: 700, fontSize: "0.92rem" }}>End-to-end support</div><div className="muted" style={{ fontSize: "0.84rem" }}>Survey, supply, install &amp; lifetime AMC</div></div>
+                </div>
+                <div style={{ display: "flex", gap: 12 }}>
+                  <span className="info-icon"><i className="fas fa-truck-fast" /></span>
+                  <div><div style={{ fontWeight: 700, fontSize: "0.92rem" }}>Pan-India delivery</div><div className="muted" style={{ fontSize: "0.84rem" }}>Service across major cities</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ===================== SOLUTIONS ===================== */}
       <section className="section" id="solutions">
@@ -273,17 +312,6 @@ export default async function HomePage() {
           </div>
         </section>
       )}
-
-      {/* ===================== CLIENTS ===================== */}
-      <section className="section">
-        <div className="container">
-          <div className="section-header">
-            <span className="eyebrow">Our clients</span>
-            <h2 className="section-title">Proudly serving leading organizations</h2>
-          </div>
-          <CustomersCarousel logos={customerLogos} />
-        </div>
-      </section>
 
       {/* ===================== GOOGLE / MAP ===================== */}
       <section className="section alt">

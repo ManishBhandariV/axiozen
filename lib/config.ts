@@ -1,8 +1,9 @@
 export const siteConfig = {
   companyName: "Axiozen",
-  companyEmail: "info@axiozen.com",
-  companyPhone: "+91 00000 00000",
-  companyAddress: "Your Street Address, City, State PIN, India",
+  companyEmail: "axiozenindia@gmail.com",
+  companyPhone: "+91 94236 29412",
+  companyAddress: "395, College Road, T Narsipura, Mysuru, Karnataka, 571124",
+  companyGstin: "29ADEPB1056A1ZA",
   siteTitle: "Axiozen - Solutions That Secure, Automate & Empower",
   siteDescription:
     "Axiozen delivers website design, hosting, app development, biometric devices, CCTV, gate automation, security solutions, and attendance & payroll software.",
@@ -14,10 +15,12 @@ export const siteConfig = {
     x: "#",
     threads: "#",
   },
-  // Placeholder map link — replace with your real Google Maps place URL.
-  googleMapsLink: "https://www.google.com/maps",
-  // Placeholder embed — replace with your real Google Maps embed URL.
-  googleMapsEmbed: "https://www.google.com/maps?output=embed&q=India",
+  // Google Search Console site verification token.
+  googleSiteVerification: "GrqZ2e2PjkxQSkUR5Yzp6x0f_rARfhaGusVmRD0wYcg",
+  googleMapsLink:
+    "https://www.google.com/maps/search/?api=1&query=395+College+Road+T+Narsipura+Mysuru+Karnataka+571124",
+  googleMapsEmbed:
+    "https://www.google.com/maps?output=embed&q=395+College+Road+T+Narsipura+Mysuru+Karnataka+571124",
   // Analytics intentionally disabled. Add your own IDs to enable.
   gtmId: "",
   gaMeasurementId: "",

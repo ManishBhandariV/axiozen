@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { siteConfig } from "@/lib/config";
-import { productCategories, getCategoryUrl } from "@/lib/data/products";
 
 const SOLUTIONS = [
   { slug: "biometric", name: "Biometric Devices", icon: "fa-fingerprint" },
@@ -35,8 +34,6 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   if (pathname.startsWith("/admin")) return null;
 
-  const categoryEntries = Object.entries(productCategories);
-
   return (
     <>
       {/* Top bar */}
@@ -64,8 +61,7 @@ export function Header() {
       <header className="site-header">
         <div className="container nav-inner">
           <Link href="/" className="brand" aria-label="Axiozen home">
-            <span className="brand-mark"><i className="fas fa-shield-halved" /></span>
-            <span><span className="b">AXIO</span><span className="z">ZEN</span></span>
+            <img src="/images/logo.png" alt="Axiozen" className="brand-logo" />
           </Link>
 
           {/* Live search */}
@@ -97,17 +93,8 @@ export function Header() {
               </div>
             </div>
 
-            <div className={`nav-item has-dropdown ${isActive(pathname, "/products") ? "active" : ""}`}>
-              <Link href="/products" className="nav-link">
-                Products <i className="fas fa-chevron-down caret" />
-              </Link>
-              <div className="dropdown mega">
-                {categoryEntries.map(([slug, category]) => (
-                  <Link key={slug} href={getCategoryUrl(slug)} className="dropdown-item">
-                    <i className={`fas ${category.icon}`} /> {category.name}
-                  </Link>
-                ))}
-              </div>
+            <div className={`nav-item ${isActive(pathname, "/about") ? "active" : ""}`}>
+              <Link href="/about" className="nav-link">About</Link>
             </div>
 
             <div className={`nav-item ${isActive(pathname, "/gallery") ? "active" : ""}`}>
@@ -120,10 +107,6 @@ export function Header() {
                 <Link href="/downloads" className="dropdown-item"><i className="fas fa-download" /> Downloads</Link>
                 <Link href="/reviews" className="dropdown-item"><i className="fas fa-star" /> Reviews</Link>
               </div>
-            </div>
-
-            <div className={`nav-item ${isActive(pathname, "/contact") ? "active" : ""}`}>
-              <Link href="/contact" className="nav-link">Contact</Link>
             </div>
           </nav>
 
@@ -149,12 +132,12 @@ export function Header() {
             <button type="submit" className="search-btn" aria-label="Search"><i className="fas fa-search" /></button>
           </form>
           <Link href="/solutions">Solutions</Link>
-          <Link href="/products">Products</Link>
+          <Link href="/about">About</Link>
           <Link href="/gallery">Work</Link>
           <div className="group-label">Resources</div>
           <Link href="/downloads">Downloads</Link>
           <Link href="/reviews">Reviews</Link>
-          <Link href="/contact">Contact</Link>
+          <Link href="/contact">Get a Quote</Link>
         </div>
       </header>
     </>

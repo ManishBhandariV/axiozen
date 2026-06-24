@@ -12,7 +12,10 @@ export const metadata: Metadata = {
     template: `%s - ${siteConfig.companyName}`,
   },
   description: siteConfig.siteDescription,
-  // Favicon is auto-served by app/icon.tsx (Next.js App Router convention).
+  // Favicon is auto-served by app/icon.png (Next.js App Router convention).
+  verification: {
+    google: siteConfig.googleSiteVerification,
+  },
 };
 
 export const viewport: Viewport = {
