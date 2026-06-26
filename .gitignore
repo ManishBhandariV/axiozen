@@ -54,3 +54,7 @@ next-env.d.ts
 /data/*.db-shm
 /data/*.db-wal
 .env*.local
+
+# Quote template source + scratch
+AXZ_*.docx
+_qtmp/

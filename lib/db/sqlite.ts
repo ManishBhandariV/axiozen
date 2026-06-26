@@ -182,6 +182,26 @@ CREATE TABLE IF NOT EXISTS custom_categories (
   display_order INTEGER DEFAULT 0,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS quotes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  quote_no TEXT NOT NULL,
+  quote_date TEXT NOT NULL,
+  valid_until TEXT DEFAULT '',
+  location TEXT DEFAULT '',
+  client_name TEXT NOT NULL,
+  client_contact TEXT DEFAULT '',
+  items TEXT NOT NULL DEFAULT '[]',
+  gst_rate REAL DEFAULT 18,
+  notes TEXT DEFAULT '',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS app_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 `;
 
 // Best-effort migrations for already-existing schemas (e.g. local dev DB).

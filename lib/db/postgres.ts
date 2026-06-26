@@ -189,10 +189,28 @@ const SCHEMA_STATEMENTS = [
     display_order INTEGER DEFAULT 0,
     created_at    TIMESTAMPTZ DEFAULT NOW()
   )`,
+  `CREATE TABLE IF NOT EXISTS quotes (
+    id            SERIAL PRIMARY KEY,
+    quote_no      TEXT NOT NULL,
+    quote_date    TEXT NOT NULL,
+    valid_until   TEXT DEFAULT '',
+    location      TEXT DEFAULT '',
+    client_name   TEXT NOT NULL,
+    client_contact TEXT DEFAULT '',
+    items         TEXT NOT NULL DEFAULT '[]',
+    gst_rate      REAL DEFAULT 18,
+    notes         TEXT DEFAULT '',
+    created_at    TIMESTAMPTZ DEFAULT NOW()
+  )`,
+  `CREATE TABLE IF NOT EXISTS app_settings (
+    key        TEXT PRIMARY KEY,
+    value      TEXT NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+  )`,
 ];
 
 // Tables without an `id` column — skip the auto-appended RETURNING id.
-const NO_ID_TABLES = ["brand_logos"];
+const NO_ID_TABLES = ["brand_logos", "app_settings"];
 
 // A statement that returns its inserted row. We rewrite trailing INSERTs to add RETURNING id,
 // except for tables we know don't have an `id` column.

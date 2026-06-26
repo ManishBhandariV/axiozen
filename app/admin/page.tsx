@@ -194,12 +194,29 @@ export default async function AdminPage({
           >
             <i className="fas fa-file-import" /> Bulk import (CSV)
           </Link>
+          <Link
+            href="/admin/quotes"
+            style={{
+              display: "block",
+              textAlign: "center",
+              background: "linear-gradient(100deg,#2f6bff,#22d3ee)",
+              color: "#fff",
+              padding: "8px 12px",
+              borderRadius: 8,
+              fontSize: "0.82rem",
+              fontWeight: 600,
+              textDecoration: "none",
+              marginTop: 8,
+            }}
+          >
+            <i className="fas fa-file-invoice-dollar" /> Quote Builder
+          </Link>
         </div>
         <AdminProductSearch products={allProducts} selectedId={selectedId} />
       </aside>
 
       {/* Main content */}
-      <div style={{ flex: 1, background: "#f0f4f8", overflowX: "hidden" }}>
+      <div style={{ flex: 1, background: "#0a0f1d", overflowX: "hidden" }}>
         <AdminTopBar
           title={`Managing: ${selectedId || "(none)"}`}
           username={session.username}

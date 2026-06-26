@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // better-sqlite3 is a native Node addon and must not be bundled.
-  serverExternalPackages: ["better-sqlite3"],
+  // @react-pdf/renderer ships its own font/layout engine — keep it external too.
+  serverExternalPackages: ["better-sqlite3", "@react-pdf/renderer"],
   experimental: {
     serverActions: {
       // Default is 1MB which rejects most product images and logos.

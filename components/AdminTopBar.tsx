@@ -11,6 +11,7 @@ export function AdminTopBar({
   username: string;
   activeTab:
     | "products"
+    | "quotes"
     | "featured"
     | "carousel"
     | "reviews"
@@ -23,6 +24,7 @@ export function AdminTopBar({
 }) {
   const tabs = [
     { id: "products",       label: "Products",  href: "/admin" },
+    { id: "quotes",         label: "Quotes",    href: "/admin/quotes" },
     { id: "featured",       label: "Featured",  href: "/admin/featured" },
     { id: "carousel",       label: "Carousel",  href: "/admin/carousel" },
     { id: "gallery",        label: "Gallery",   href: "/admin/gallery" },
@@ -36,20 +38,23 @@ export function AdminTopBar({
   return (
     <div
       style={{
-        background: "#fff",
-        padding: "16px 28px",
+        background: "rgba(8,12,24,0.92)",
+        backdropFilter: "blur(12px)",
+        padding: "14px 28px",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+        borderBottom: "1px solid rgba(255,255,255,0.09)",
         position: "sticky",
         top: 0,
         zIndex: 100,
+        flexWrap: "wrap",
+        gap: 12,
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-        <h1 style={{ fontSize: "1.1rem", color: "#16223f" }}>{title}</h1>
-        <nav style={{ display: "flex", gap: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
+        <h1 style={{ fontSize: "1rem", color: "#e6ecf7", fontWeight: 700 }}>{title}</h1>
+        <nav style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
           {tabs.map((t) => {
             const active = t.id === activeTab;
             return (
@@ -58,9 +63,9 @@ export function AdminTopBar({
                 href={t.href}
                 style={{
                   fontSize: "0.85rem",
-                  color: active ? "#2563eb" : "#64748b",
+                  color: active ? "#22d3ee" : "#8a97b1",
                   textDecoration: "none",
-                  fontWeight: active ? 600 : 400,
+                  fontWeight: active ? 700 : 500,
                 }}
               >
                 {t.label}
@@ -84,8 +89,8 @@ export function AdminTopBar({
         </nav>
       </div>
       <div>
-        <span style={{ color: "#94a3b8", fontSize: "0.82rem", marginRight: 16 }}>
-          Logged in as <strong>{username}</strong>
+        <span style={{ color: "#5e6b80", fontSize: "0.82rem", marginRight: 16 }}>
+          Logged in as <strong style={{ color: "#8a97b1" }}>{username}</strong>
         </span>
         <form action={logout} style={{ display: "inline" }}>
           <button
@@ -93,7 +98,7 @@ export function AdminTopBar({
             style={{
               background: "none",
               border: "none",
-              color: "#64748b",
+              color: "#8a97b1",
               fontSize: "0.85rem",
               cursor: "pointer",
               textDecoration: "underline",
