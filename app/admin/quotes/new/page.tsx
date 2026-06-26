@@ -13,7 +13,7 @@ export default async function NewQuotePage() {
   if (!session) return <AdminLogin />;
 
   const [num, cfg] = await Promise.all([nextQuoteNumber(), loadQuoteSettings()]);
-  const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  const today = new Date().toISOString().slice(0, 10);
 
   return (
     <>
@@ -26,7 +26,7 @@ export default async function NewQuotePage() {
           </div>
           <a href="/admin/quotes" className="btn btn-ghost">← Back</a>
         </div>
-        <QuoteForm suggestedNumber={num} today={today} defaults={{ gstRate: cfg.gstRate, validity: cfg.validity }} />
+        <QuoteForm suggestedNumber={num} today={today} defaults={{ gstRate: cfg.gstRate, validity: cfg.validity, scopeOfWork: cfg.scopeOfWorkDefault }} />
       </div>
     </>
   );

@@ -36,8 +36,55 @@ function readInput(formData: FormData): QuoteInput {
     client_contact: String(formData.get("client_contact") ?? "").trim(),
     items: parseItems(String(formData.get("items") ?? "[]")),
     gst_rate: Number(formData.get("gst_rate")) || 0,
+    scope_of_work: String(formData.get("scope_of_work") ?? "").trim(),
     notes: String(formData.get("notes") ?? "").trim(),
   };
+}
+
+/** Result returned to the form's useActionState (no redirect — lets the form download). */
+export type SaveQuoteState = {
+  ok: boolean;
+  id?: number;
+  version?: number;
+  changed?: boolean;
+  error?: string;
+};
+
+/**
+ * Validate + save a quote, returning state instead of redirecting. Used by the
+ * QuoteForm for "Save", "Save & PDF" and "Save & Word" (save-then-download).
+ */
+export async function saveQuoteState(
+  _prev: SaveQuoteState | null,
+  formData: FormData,
+): Promise<SaveQuoteState> {
+  const session = await getSession();
+  if (!session) return { ok: false, error: "Unauthorized." };
+
+  const id = Number(formData.get("id") || 0);
+  const input = readInput(formData);
+
+  if (!input.client_name) return { ok: false, error: "Client name is required." };
+  if (!input.quote_date) return { ok: false, error: "Quote date is required." };
+  if (input.items.length === 0)
+    return { ok: false, error: "Add at least one line item." };
+  if (!Number.isFinite(input.gst_rate) || input.gst_rate < 0 || input.gst_rate > 100)
+    return { ok: false, error: "GST % must be between 0 and 100." };
+
+  try {
+    if (id) {
+      const res = await updateQuote(id, input);
+      revalidatePath("/admin/quotes");
+      revalidatePath(`/admin/quotes/${id}/edit`);
+      return { ok: true, id, version: res.version, changed: res.changed };
+    }
+    const newId = await createQuote(input);
+    revalidatePath("/admin/quotes");
+    return { ok: true, id: newId, version: 1, changed: true };
+  } catch (e) {
+    console.error("[saveQuoteState]", e);
+    return { ok: false, error: `Save failed: ${(e as Error).message}` };
+  }
 }
 
 export async function saveQuoteAction(formData: FormData) {
@@ -66,8 +113,8 @@ export async function duplicateQuoteAction(formData: FormData) {
   if (!q) redirect("/admin/quotes");
   const newId = await createQuote({
     quote_no: "", quote_date: q.quote_date, valid_until: q.valid_until,
-    location: q.location, client_name: q.client_name, client_contact: q.client_contact,
-    items: q.items, gst_rate: q.gst_rate, notes: q.notes,
+    location: q.location, client_name: `${q.client_name} (copy)`, client_contact: q.client_contact,
+    items: q.items, gst_rate: q.gst_rate, scope_of_work: q.scope_of_work, notes: q.notes,
   });
   revalidatePath("/admin/quotes");
   redirect(`/admin/quotes/${newId}/edit`);
@@ -92,6 +139,11 @@ export async function saveSettingsAction(formData: FormData) {
     const v = Number(formData.get(k));
     return Number.isFinite(v) ? v : d;
   };
+  // About paragraphs: textarea split on blank lines (paragraph breaks).
+  const aboutRaw = String(formData.get("aboutParagraphs") ?? "");
+  const aboutParagraphs = aboutRaw.trim()
+    ? aboutRaw.split(/\n\s*\n/).map((p) => p.trim().replace(/\s*\n\s*/g, " ")).filter(Boolean)
+    : cur.aboutParagraphs;
   const s: QuoteSettings = {
     companyName: str("companyName", cur.companyName),
     address: str("address", cur.address),
@@ -109,6 +161,10 @@ export async function saveSettingsAction(formData: FormData) {
     numberPrefix: str("numberPrefix", cur.numberPrefix),
     numberPadding: num("numberPadding", cur.numberPadding),
     numberStart: num("numberStart", cur.numberStart),
+    aboutHeading: str("aboutHeading", cur.aboutHeading),
+    aboutParagraphs,
+    scopeOfWorkDefault: String(formData.get("scopeOfWorkDefault") ?? "").trim(),
+    showCustomers: formData.get("showCustomers") != null,
     terms,
   };
   await saveQuoteSettings(s);

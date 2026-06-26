@@ -7,15 +7,18 @@ export type QuoteItem = {
 export type QuoteRecord = {
   id: number;
   quote_no: string;
-  quote_date: string; // display string, e.g. "June 23, 2026"
+  quote_date: string; // ISO yyyy-mm-dd
   valid_until: string; // e.g. "7 Days from Issue"
   location: string;
   client_name: string;
   client_contact: string; // email / phone
   items: QuoteItem[];
   gst_rate: number; // percent
+  scope_of_work: string;
   notes: string;
+  version: number;
   created_at: string;
+  updated_at: string;
 };
 
 /** Raw DB row (items stored as JSON string). */
@@ -47,4 +50,9 @@ export type QuoteSettings = {
   numberPadding: number; // e.g. 4 -> 0103
   numberStart: number; // first number to use, e.g. 103
   terms: QuoteTermsSection[];
+  // About + scope + customers
+  aboutHeading: string;
+  aboutParagraphs: string[];
+  scopeOfWorkDefault: string;
+  showCustomers: boolean; // gates the "Our Esteemed Customers" wall (off by default)
 };

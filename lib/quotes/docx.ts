@@ -1,10 +1,16 @@
 import {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
   WidthType, AlignmentType, ImageRun, BorderStyle, VerticalAlign, ShadingType,
+  Header, TabStopType, TabStopPosition,
 } from "docx";
 import type { QuoteRecord, QuoteSettings, QuoteTermsSection } from "./types";
 import { computeTotals, lineAmount, rs } from "./compute";
+import { fullQuoteId } from "./server";
 import { LOGO_DATA_URI, QR_DATA_URI, BANNER_DATA_URI } from "./assets";
+
+// Customer-logo data URIs for the "Our Esteemed Customers" wall. Empty until
+// real Axiozen client logos are embedded — gated on cfg.showCustomers.
+const CUSTOMER_DATA_URIS: string[] = [];
 
 const NAVY = "16223F";
 const BLUE = "2563EB";
@@ -13,6 +19,14 @@ const BORDER = "CBD5E1";
 
 function buf(dataUri: string): Buffer {
   return Buffer.from(dataUri.split(",")[1], "base64");
+}
+
+/** ISO yyyy-mm-dd → "June 23, 2026"; pass through anything non-ISO. */
+function prettyDate(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  if (!m) return iso;
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 }
 
 const thin = { style: BorderStyle.SINGLE, size: 4, color: BORDER };
@@ -62,10 +76,11 @@ function termSection(sec: QuoteTermsSection, n: number): Paragraph[] {
 
 export async function renderQuoteDocx(q: QuoteRecord, cfg: QuoteSettings): Promise<Buffer> {
   const { net, gst, total } = computeTotals(q.items, q.gst_rate);
+  const docId = fullQuoteId(q.quote_no, q.version);
 
   const meta: Array<[string, string]> = [
-    ["Quotation No:", q.quote_no],
-    ["Date:", q.quote_date],
+    ["Quotation No:", docId],
+    ["Date:", prettyDate(q.quote_date)],
     ["Valid Until:", q.valid_until],
     ["Location:", q.location],
     ["Client Name:", q.client_name],
@@ -156,6 +171,64 @@ export async function renderQuoteDocx(q: QuoteRecord, cfg: QuoteSettings): Promi
     ] })],
   });
 
+  // About section
+  const aboutBlocks: Paragraph[] = cfg.aboutParagraphs.length
+    ? [
+        ...([sectionBar(cfg.aboutHeading)] as Paragraph[]),
+        ...cfg.aboutParagraphs.map((p) => new Paragraph({
+          spacing: { after: 80 }, alignment: AlignmentType.JUSTIFIED,
+          children: [new TextRun({ text: p, size: 17, color: "334155" })],
+        })),
+      ]
+    : [];
+
+  // Our Esteemed Customers (gated)
+  const showCustomers = cfg.showCustomers && CUSTOMER_DATA_URIS.length > 0;
+  const customerBlocks: Array<Paragraph | Table> = [];
+  if (showCustomers) {
+    customerBlocks.push(sectionBar("Our Esteemed Customers"));
+    const perRow = 6;
+    const rows: TableRow[] = [];
+    for (let i = 0; i < CUSTOMER_DATA_URIS.length; i += perRow) {
+      const slice = CUSTOMER_DATA_URIS.slice(i, i + perRow);
+      rows.push(new TableRow({
+        children: Array.from({ length: perRow }).map((_, j) => new TableCell({
+          width: { size: Math.floor(100 / perRow), type: WidthType.PERCENTAGE },
+          margins: { top: 40, bottom: 40, left: 40, right: 40 },
+          verticalAlign: VerticalAlign.CENTER,
+          borders: { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE } },
+          children: [new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: slice[j]
+              ? [new ImageRun({ type: "png", data: buf(slice[j]), transformation: { width: 80, height: 30 } })]
+              : [new TextRun("")],
+          })],
+        })),
+      }));
+    }
+    customerBlocks.push(new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders: { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE }, insideHorizontal: { style: BorderStyle.NONE }, insideVertical: { style: BorderStyle.NONE } },
+      rows,
+    }));
+  }
+
+  // Scope of Work
+  const scopeBlocks: Paragraph[] = q.scope_of_work
+    ? [
+        ...([sectionBar("Scope of Work")] as Paragraph[]),
+        new Paragraph({ spacing: { after: 80 }, alignment: AlignmentType.JUSTIFIED, children: [new TextRun({ text: q.scope_of_work, size: 17, color: "334155" })] }),
+      ]
+    : [];
+
+  // Running header with the logo — repeats on every page.
+  const runningHeader = new Header({
+    children: [new Paragraph({
+      alignment: AlignmentType.CENTER, spacing: { after: 40 },
+      children: [new ImageRun({ type: "png", data: buf(LOGO_DATA_URI), transformation: { width: 200, height: 31 } })],
+    })],
+  });
+
   const children = [
     new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 40 }, children: [new ImageRun({ type: "png", data: buf(LOGO_DATA_URI), transformation: { width: 300, height: 46 } })] }),
     new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 20 }, children: [new TextRun({ text: cfg.address, size: 17, color: "64748B" })] }),
@@ -163,9 +236,16 @@ export async function renderQuoteDocx(q: QuoteRecord, cfg: QuoteSettings): Promi
     new Paragraph({
       alignment: AlignmentType.CENTER, spacing: { before: 60, after: 160 },
       shading: { fill: NAVY, type: ShadingType.CLEAR, color: "auto" },
-      children: [new TextRun({ text: "COMMERCIAL QUOTATION", bold: true, color: "FFFFFF", size: 28 })],
+      tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
+      children: [
+        new TextRun({ text: "COMMERCIAL QUOTATION", bold: true, color: "FFFFFF", size: 28 }),
+        new TextRun({ text: `\t${docId}`, bold: true, color: "CBD5E1", size: 18 }),
+      ],
     }),
     metaTable,
+    ...aboutBlocks,
+    ...customerBlocks,
+    ...scopeBlocks,
     sectionBar("Product & Service Pricing Details"),
     pricingTable,
     sectionBar("Payment Information"),
@@ -178,8 +258,12 @@ export async function renderQuoteDocx(q: QuoteRecord, cfg: QuoteSettings): Promi
 
   const doc = new Document({
     creator: cfg.companyName,
-    title: q.quote_no,
-    sections: [{ properties: { page: { margin: { top: 720, bottom: 720, left: 720, right: 720 } } }, children }],
+    title: `Quotation ${docId}`,
+    sections: [{
+      properties: { page: { margin: { top: 720, bottom: 720, left: 720, right: 720 } } },
+      headers: { default: runningHeader },
+      children,
+    }],
   });
 
   return Packer.toBuffer(doc);

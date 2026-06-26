@@ -1,13 +1,18 @@
 import type { QuoteItem } from "./types";
 
+/** Round to 2 decimals without binary-float drift. */
+export function round2(n: number): number {
+  return Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+}
+
 export function lineAmount(it: QuoteItem): number {
-  return (Number(it.qty) || 0) * (Number(it.unitPrice) || 0);
+  return round2((Number(it.qty) || 0) * (Number(it.unitPrice) || 0));
 }
 
 export function computeTotals(items: QuoteItem[], gstRate: number) {
-  const net = items.reduce((s, it) => s + lineAmount(it), 0);
-  const gst = net * (Number(gstRate) || 0) / 100;
-  const total = net + gst;
+  const net = round2(items.reduce((s, it) => s + lineAmount(it), 0));
+  const gst = round2((net * (Number(gstRate) || 0)) / 100);
+  const total = round2(net + gst);
   return { net, gst, total };
 }
 

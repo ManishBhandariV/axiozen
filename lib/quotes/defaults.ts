@@ -24,6 +24,14 @@ export const DEFAULT_QUOTE_SETTINGS: QuoteSettings = {
   numberPadding: 4,
   numberStart: 103,
 
+  aboutHeading: "About Axiozen",
+  aboutParagraphs: [
+    "Axiozen is a Mysuru-based technology company specialising in security, surveillance and workplace automation solutions. We design and deliver reliable hardware and software ecosystems tailored to each client's operational needs.",
+    "From biometric access control and CCTV surveillance to attendance and automation systems, our focus is on dependable, future-ready deployments backed by responsive local support.",
+  ],
+  scopeOfWorkDefault: "",
+  showCustomers: false,
+
   terms: [
     {
       heading: "General Information",

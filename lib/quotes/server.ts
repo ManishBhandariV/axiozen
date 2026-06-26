@@ -10,7 +10,13 @@ function parseRow(r: QuoteRow): QuoteRecord {
   } catch {
     /* ignore malformed json */
   }
-  return { ...r, items, gst_rate: Number(r.gst_rate) };
+  return {
+    ...r,
+    items,
+    gst_rate: Number(r.gst_rate),
+    version: Number(r.version) || 1,
+    scope_of_work: r.scope_of_work ?? "",
+  };
 }
 
 export async function listQuotes(): Promise<QuoteRecord[]> {
@@ -57,34 +63,68 @@ export type QuoteInput = {
   client_contact: string;
   items: QuoteItem[];
   gst_rate: number;
+  scope_of_work: string;
   notes: string;
 };
+
+/** Full document id including the zero-padded revision, e.g. "AXZ/2026/0103-02". */
+export function fullQuoteId(quoteNo: string, version: number): string {
+  const v = Math.max(1, Math.floor(Number(version) || 1));
+  return `${quoteNo}-${String(v).padStart(2, "0")}`;
+}
 
 export async function createQuote(input: QuoteInput): Promise<number> {
   const db = await getDb();
   const quote_no = input.quote_no?.trim() || (await nextQuoteNumber());
   const res = await db.run(
-    `INSERT INTO quotes (quote_no, quote_date, valid_until, location, client_name, client_contact, items, gst_rate, notes)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO quotes (quote_no, quote_date, valid_until, location, client_name, client_contact, items, gst_rate, scope_of_work, notes, version)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
     [
       quote_no, input.quote_date, input.valid_until, input.location,
       input.client_name, input.client_contact, JSON.stringify(input.items),
-      input.gst_rate, input.notes,
+      input.gst_rate, input.scope_of_work, input.notes,
     ],
   );
   return res.insertId ?? 0;
 }
 
-export async function updateQuote(id: number, input: QuoteInput): Promise<void> {
+/** True if the incoming input differs from the stored quote's content. */
+function contentChanged(existing: QuoteRecord, next: QuoteInput): boolean {
+  return (
+    (existing.quote_no ?? "") !== (next.quote_no ?? "") ||
+    existing.quote_date !== next.quote_date ||
+    existing.valid_until !== next.valid_until ||
+    existing.location !== next.location ||
+    existing.client_name !== next.client_name ||
+    existing.client_contact !== next.client_contact ||
+    Number(existing.gst_rate) !== Number(next.gst_rate) ||
+    (existing.scope_of_work ?? "") !== (next.scope_of_work ?? "") ||
+    (existing.notes ?? "") !== (next.notes ?? "") ||
+    JSON.stringify(existing.items) !== JSON.stringify(next.items)
+  );
+}
+
+export type UpdateResult = { version: number; changed: boolean };
+
+/**
+ * Update a quote. The revision (`version`) is bumped by 1 only when the content
+ * actually changed, so repeated saves / save-before-download don't inflate it.
+ */
+export async function updateQuote(id: number, input: QuoteInput): Promise<UpdateResult> {
   const db = await getDb();
+  const existing = await getQuote(id);
+  const changed = existing ? contentChanged(existing, input) : true;
+  const baseVersion = existing?.version ?? 1;
+  const nextVersion = changed ? baseVersion + 1 : baseVersion;
   await db.run(
-    `UPDATE quotes SET quote_no=?, quote_date=?, valid_until=?, location=?, client_name=?, client_contact=?, items=?, gst_rate=?, notes=? WHERE id=?`,
+    `UPDATE quotes SET quote_no=?, quote_date=?, valid_until=?, location=?, client_name=?, client_contact=?, items=?, gst_rate=?, scope_of_work=?, notes=?, version=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`,
     [
       input.quote_no ?? "", input.quote_date, input.valid_until, input.location,
       input.client_name, input.client_contact, JSON.stringify(input.items),
-      input.gst_rate, input.notes, id,
+      input.gst_rate, input.scope_of_work, input.notes, nextVersion, id,
     ],
   );
+  return { version: nextVersion, changed };
 }
 
 export async function deleteQuote(id: number): Promise<void> {

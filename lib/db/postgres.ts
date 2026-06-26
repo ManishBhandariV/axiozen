@@ -199,9 +199,16 @@ const SCHEMA_STATEMENTS = [
     client_contact TEXT DEFAULT '',
     items         TEXT NOT NULL DEFAULT '[]',
     gst_rate      REAL DEFAULT 18,
+    scope_of_work TEXT DEFAULT '',
     notes         TEXT DEFAULT '',
-    created_at    TIMESTAMPTZ DEFAULT NOW()
+    version       INTEGER NOT NULL DEFAULT 1,
+    created_at    TIMESTAMPTZ DEFAULT NOW(),
+    updated_at    TIMESTAMPTZ DEFAULT NOW()
   )`,
+  `ALTER TABLE quotes ADD COLUMN IF NOT EXISTS scope_of_work TEXT DEFAULT ''`,
+  `ALTER TABLE quotes ADD COLUMN IF NOT EXISTS version INTEGER NOT NULL DEFAULT 1`,
+  `ALTER TABLE quotes ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW()`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS idx_quotes_no ON quotes(quote_no)`,
   `CREATE TABLE IF NOT EXISTS app_settings (
     key        TEXT PRIMARY KEY,
     value      TEXT NOT NULL,

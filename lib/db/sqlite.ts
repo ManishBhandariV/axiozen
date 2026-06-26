@@ -193,9 +193,13 @@ CREATE TABLE IF NOT EXISTS quotes (
   client_contact TEXT DEFAULT '',
   items TEXT NOT NULL DEFAULT '[]',
   gst_rate REAL DEFAULT 18,
+  scope_of_work TEXT DEFAULT '',
   notes TEXT DEFAULT '',
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  version INTEGER NOT NULL DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+CREATE UNIQUE INDEX IF NOT EXISTS idx_quotes_no ON quotes(quote_no);
 
 CREATE TABLE IF NOT EXISTS app_settings (
   key TEXT PRIMARY KEY,
@@ -213,6 +217,9 @@ const MIGRATIONS = [
   "ALTER TABLE product_meta ADD COLUMN category_override TEXT",
   "ALTER TABLE contact_enquiries ADD COLUMN email_sent INTEGER DEFAULT 0",
   "ALTER TABLE contact_enquiries ADD COLUMN email_error TEXT",
+  "ALTER TABLE quotes ADD COLUMN scope_of_work TEXT DEFAULT ''",
+  "ALTER TABLE quotes ADD COLUMN version INTEGER NOT NULL DEFAULT 1",
+  "ALTER TABLE quotes ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP",
 ];
 
 export const sqliteDriver: DbDriver = {

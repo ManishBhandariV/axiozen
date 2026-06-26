@@ -78,6 +78,26 @@ export default async function QuoteSettingsPage({ searchParams }: { searchParams
           </div>
 
           <div className="card-panel" style={{ marginBottom: 18 }}>
+            <h3 className="qf-h">About &amp; scope</h3>
+            <div className="field">
+              <label>About heading</label>
+              <input className="input" name="aboutHeading" defaultValue={cfg.aboutHeading} />
+            </div>
+            <div className="field" style={{ marginTop: 10 }}>
+              <label>About paragraphs (separate paragraphs with a blank line)</label>
+              <textarea className="textarea" name="aboutParagraphs" rows={6} defaultValue={cfg.aboutParagraphs.join("\n\n")} />
+            </div>
+            <div className="field" style={{ marginTop: 10 }}>
+              <label>Default Scope of Work (prefilled on new quotes)</label>
+              <textarea className="textarea" name="scopeOfWorkDefault" rows={2} defaultValue={cfg.scopeOfWorkDefault} />
+            </div>
+            <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, fontSize: "0.88rem" }}>
+              <input type="checkbox" name="showCustomers" defaultChecked={cfg.showCustomers} />
+              Show &ldquo;Our Esteemed Customers&rdquo; logo wall (requires embedded customer logo assets)
+            </label>
+          </div>
+
+          <div className="card-panel" style={{ marginBottom: 18 }}>
             <h3 className="qf-h">Terms &amp; Conditions (advanced)</h3>
             <p className="muted" style={{ fontSize: "0.82rem", marginBottom: 10 }}>
               JSON array of sections: <code>{`[{ "heading": "...", "points": [{ "label": "...", "text": "..." }] }]`}</code>

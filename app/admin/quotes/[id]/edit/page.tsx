@@ -23,7 +23,7 @@ export default async function EditQuotePage({
   const q = await getQuote(Number(id));
   if (!q) notFound();
   const cfg = await loadQuoteSettings();
-  const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  const today = new Date().toISOString().slice(0, 10);
 
   return (
     <>
@@ -43,7 +43,7 @@ export default async function EditQuotePage({
         {saved && (
           <div className="saved-banner"><i className="fas fa-circle-check" /> Quote saved. Use the PDF / Word buttons above to download.</div>
         )}
-        <QuoteForm initial={q} suggestedNumber={q.quote_no} today={today} defaults={{ gstRate: cfg.gstRate, validity: cfg.validity }} />
+        <QuoteForm initial={q} suggestedNumber={q.quote_no} today={today} defaults={{ gstRate: cfg.gstRate, validity: cfg.validity, scopeOfWork: cfg.scopeOfWorkDefault }} />
       </div>
     </>
   );
