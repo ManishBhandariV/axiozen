@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { saveQuoteState, type SaveQuoteState } from "@/app/admin/quotes/actions";
 import { computeTotals, lineAmount, rs } from "@/lib/quotes/compute";
 import type { QuoteItem, QuoteRecord } from "@/lib/quotes/types";
@@ -55,6 +55,14 @@ export function QuoteForm({ initial, suggestedNumber, today, defaults }: Props) 
   const formRef = useRef<HTMLFormElement>(null);
   const [downloading, setDownloading] = useState<null | "pdf" | "docx">(null);
   const [dlError, setDlError] = useState<string | null>(null);
+
+  // After a NEW quote is saved via the form action, advance to its edit page
+  // (adopts the new id so further saves update instead of creating duplicates).
+  useEffect(() => {
+    if (state?.ok && state.id && !initial) {
+      window.location.assign(`/admin/quotes/${state.id}/edit?saved=1`);
+    }
+  }, [state, initial]);
 
   const { net, gst, total } = computeTotals(items, gstRate);
   const cleanItems = items.filter((it) => it.item.trim() || it.qty || it.unitPrice);
