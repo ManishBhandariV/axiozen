@@ -8,7 +8,7 @@ export const DEFAULT_QUOTE_SETTINGS: QuoteSettings = {
   companyName: "AXIOZEN",
   address: "395, College Road, T Narsipura, Mysuru, Karnataka, 571124",
   gstin: "29ADEPB1056A1ZA",
-  phone: "9423629412",
+  phone: "9480826479",
   website: "www.axiozen.in",
 
   accountName: "SHRI ARIHANT TRADERS",

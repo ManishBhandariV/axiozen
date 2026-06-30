@@ -1,7 +1,7 @@
 export const siteConfig = {
   companyName: "Axiozen",
   companyEmail: "axiozenindia@gmail.com",
-  companyPhone: "+91 94236 29412",
+  companyPhone: "+91 94808 26479",
   companyAddress: "395, College Road, T Narsipura, Mysuru, Karnataka, 571124",
   companyGstin: "29ADEPB1056A1ZA",
   siteTitle: "Axiozen - Solutions That Secure, Automate & Empower",
